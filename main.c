@@ -1,100 +1,104 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-// Estructura para representar un nodo de la lista
+// Definición de la estructura del nodo
 typedef struct Nodo {
-    char dato;
-    struct Nodo* siguiente;
+    void *dato;
+    struct Nodo *anterior;
+    struct Nodo *siguiente;
 } Nodo;
 
-// Estructura para representar una lista de caracteres
+// Definición de la estructura de la lista
 typedef struct Lista {
-    Nodo* cabeza;
-    Nodo* cola;
+    Nodo *cabeza;
+    Nodo *cola;
 } Lista;
 
-// Función para crear una nueva lista
-Lista* crearLista() {
-    Lista* lista = (Lista*)malloc(sizeof(Lista));
-    if (lista != NULL) {
-        lista->cabeza = NULL;
-        lista->cola = NULL;
-    }
-    return lista;
-}
-
-// Función para crear un nuevo nodo con un dato dado
-Nodo* crearNodo(char dato) {
-    Nodo* nuevoNodo = (Nodo*)malloc(sizeof(Nodo));
+// Función para crear un nodo
+Nodo *crearNodo(void *dato) {
+    Nodo *nuevoNodo = (Nodo *)malloc(sizeof(Nodo));
     if (nuevoNodo != NULL) {
         nuevoNodo->dato = dato;
+        nuevoNodo->anterior = NULL;
         nuevoNodo->siguiente = NULL;
     }
     return nuevoNodo;
 }
 
-// Función para insertar un nuevo nodo al final de la lista
-void insertar(Lista* lista, char dato) {
-    Nodo* nuevoNodo = crearNodo(dato);
-    if (nuevoNodo != NULL) {
-        if (lista->cabeza == NULL) {
-            lista->cabeza = nuevoNodo;
-            lista->cola = nuevoNodo;
-        } else {
-            lista->cola->siguiente = nuevoNodo;
-            lista->cola = nuevoNodo;
-        }
+// Función para crear una lista vacía
+Lista *crearLista() {
+    Lista *nuevaLista = (Lista *)malloc(sizeof(Lista));
+    if (nuevaLista != NULL) {
+        nuevaLista->cabeza = NULL;
+        nuevaLista->cola = NULL;
+    }
+    return nuevaLista;
+}
+
+// Función para añadir un nodo al principio de la lista
+void addCabeza(Lista *lista, void *dato) {
+    Nodo *nuevoNodo = crearNodo(dato);
+    if (lista->cabeza == NULL) {
+        lista->cabeza = lista->cola = nuevoNodo;
+    } else {
+        nuevoNodo->siguiente = lista->cabeza;
+        lista->cabeza->anterior = nuevoNodo;
+        lista->cabeza = nuevoNodo;
     }
 }
 
-// Función para imprimir una lista de caracteres
-void imprimirLista(Lista* lista) {
-    Nodo* temp = lista->cabeza;
-    while (temp != NULL) {
-        printf("%c ", temp->dato);
-        temp = temp->siguiente;
+// Función para añadir un nodo al final de la lista
+void addCola(Lista *lista, void *dato) {
+    Nodo *nuevoNodo = crearNodo(dato);
+    if (lista->cola == NULL) {
+        lista->cabeza = lista->cola = nuevoNodo;
+    } else {
+        nuevoNodo->anterior = lista->cola;
+        lista->cola->siguiente = nuevoNodo;
+        lista->cola = nuevoNodo;
     }
-    printf("\n");
 }
 
-// Función para liberar la memoria utilizada por una lista
-void liberarLista(Lista* lista) {
-    Nodo* temp = lista->cabeza;
-    while (temp != NULL) {
-        Nodo* siguiente = temp->siguiente;
-        free(temp);
-        temp = siguiente;
+// Función para liberar la memoria ocupada por la lista y sus nodos
+void liberarLista(Lista *lista) {
+    Nodo *actual = lista->cabeza;
+    Nodo *siguiente;
+    while (actual != NULL) {
+        siguiente = actual->siguiente;
+        free(actual);
+        actual = siguiente;
     }
     free(lista);
 }
 
+// Función de ejemplo para imprimir los datos en la lista
+void imprimirLista(Lista *lista) {
+    Nodo *actual = lista->cabeza;
+    while (actual != NULL) {
+        // Suponiendo que los datos son de tipo int
+        printf("%d ", *((int *)actual->dato));
+        actual = actual->siguiente;
+    }
+    printf("\n");
+}
+
 int main() {
-    // Definir números de teléfono
-    char* telefonos[] = {
-        "664 511 3370",
-        "555-123-4567",
-        "(123) 456-7890",
-        "123-456-789",
-        "911"
-    };
+    // Ejemplo de uso
+    Lista *lista = crearLista();
 
-    // Crear y llenar listas para cada número de teléfono
-    Lista* listas[5];
-    for (int i = 0; i < 5; i++) {
-        listas[i] = crearLista();
-        for (int j = 0; j < strlen(telefonos[i]); j++) {
-            insertar(listas[i], telefonos[i][j]);
-        }
-    }
+    int dato1 = 10;
+    int dato2 = 20;
+    int dato3 = 30;
 
-    // Imprimir las listas de caracteres para cada número de teléfono
-    for (int i = 0; i < 5; i++) {
-        printf("Número de teléfono %d: ", i + 1);
-        imprimirLista(listas[i]);
-        liberarLista(listas[i]);
-    }
+    addCabeza(lista, &dato1);
+    addCola(lista, &dato2);
+    addCola(lista, &dato3);
+
+    imprimirLista(lista);
+
+    liberarLista(lista);
 
     return 0;
 }
+
 
